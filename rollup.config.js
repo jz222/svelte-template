@@ -3,94 +3,95 @@ import babel from 'rollup-plugin-babel';
 import resolve from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser';
+import {terser} from 'rollup-plugin-terser';
 import includePaths from 'rollup-plugin-includepaths';
 import sveltePreprocess from 'svelte-preprocess';
 
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-	input: 'src/main.js',
-	output: {
-		sourcemap: true,
-		format: 'iife',
-		name: 'app',
-		file: 'public/build/bundle.js'
-	},
-	plugins: [
-		svelte({
-			// enable run-time checks when not in production
-			dev: !production,
-			// we'll extract any component CSS out into
-			// a separate file — better for performance
+    input: 'src/main.js',
+    output: {
+        sourcemap: true,
+        format: 'iife',
+        name: 'app',
+        file: 'public/build/bundle.js'
+    },
+    plugins: [
+        svelte({
+            // enable run-time checks when not in production
+            dev: !production,
+            // we'll extract any component CSS out into
+            // a separate file — better for performance
 
-			css: css => {
-				css.write('public/build/bundle.css');
-			},
+            css: css => {
+                css.write('public/build/bundle.css');
+            },
 
-			preprocess: sveltePreprocess({
-				scss: {
-					includePaths: ['src']
-				},
-				postcss: {
-					plugins: [require('autoprefixer')]
-				}
-			})
-		}),
-
-        babel({
-            extensions: [ ".js", ".mjs", ".html", ".svelte" ]
+            preprocess: sveltePreprocess({
+                scss: {
+                    includePaths: ['src']
+                },
+                postcss: {
+                    plugins: [require('autoprefixer')]
+                }
+            })
         }),
 
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration —
-		// consult the documentation for details:
-		// https://github.com/rollup/plugins/tree/master/packages/commonjs
-		resolve({
-			browser: true,
-			dedupe: importee => importee === 'svelte' || importee.startsWith('svelte/')
-		}),
+        babel({
+            extensions: ['.js', '.mjs', '.html', '.svelte'],
+            exclude: ['node_modules/@babel/**', 'node_modules/core-js/**']
+        }),
 
-		includePaths({
-			include: {},
-			paths: ['src/'],
-			external: [],
-			extensions: ['.js', '.json', '.html']
-		}),
+        // If you have external dependencies installed from
+        // npm, you'll most likely need these plugins. In
+        // some cases you'll need additional configuration —
+        // consult the documentation for details:
+        // https://github.com/rollup/plugins/tree/master/packages/commonjs
+        resolve({
+            browser: true,
+            dedupe: importee => importee === 'svelte' || importee.startsWith('svelte/')
+        }),
 
-		commonjs(),
+        includePaths({
+            include: {},
+            paths: ['src/'],
+            external: [],
+            extensions: ['.js', '.json', '.html']
+        }),
 
-		// In dev mode, call `npm run start` once
-		// the bundle has been generated
-		!production && serve(),
+        commonjs(),
 
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
-		!production && livereload('public'),
+        // In dev mode, call `npm run start` once
+        // the bundle has been generated
+        !production && serve(),
 
-		// If we're building for production (npm run build
-		// instead of npm run dev), minify
-		production && terser()
-	],
-	watch: {
-		clearScreen: false
-	}
+        // Watch the `public` directory and refresh the
+        // browser on changes when not in production
+        !production && livereload('public'),
+
+        // If we're building for production (npm run build
+        // instead of npm run dev), minify
+        production && terser()
+    ],
+    watch: {
+        clearScreen: false
+    }
 };
 
 function serve() {
-	let started = false;
+    let started = false;
 
-	return {
-		writeBundle() {
-			if (!started) {
-				started = true;
+    return {
+        writeBundle() {
+            if (!started) {
+                started = true;
 
-				require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-					stdio: ['ignore', 'inherit', 'inherit'],
-					shell: true
-				});
-			}
-		}
-	};
+                require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
+                    stdio: ['ignore', 'inherit', 'inherit'],
+                    shell: true
+                });
+            }
+        }
+    };
 }
